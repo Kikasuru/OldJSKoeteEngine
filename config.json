@@ -1,0 +1,25 @@
+{
+    "btnNum": 4,
+
+    "defaultKeyboard": {
+        "up": "Space",
+        "down": "KeyW",
+        "left": "KeyQ",
+        "right": "KeyE",
+
+        "btns": ["Numpad4", "Numpad5", "Numpad6", "Numpad1"]
+    },
+    "defaultGamepad": {
+        "xaxis": 0,
+        "yaxis": 1,
+
+        "up": 12,
+        "down": 13,
+        "left": 14,
+        "right": 15,
+        "btns": [2,3,5,0],
+
+        "useaxis": false,
+        "sensitivity": 0.75
+    }
+}

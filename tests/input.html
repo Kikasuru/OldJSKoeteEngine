@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Input Test</title>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+        <script type="module">
+            import {GamepadDevice, KeyboardDevice, loadConfig, getButtonCount} from "../js/input.js";
+
+            function createEntry(state, id) {
+                let entry = document.createElement("div");
+                entry.classList.add("input-entry");
+                entry.id = id;
+
+                let framecount = document.createElement("span");
+                framecount.classList.add("framecount");
+                framecount.innerHTML = "1";
+                entry.appendChild(framecount);
+
+                let direction = document.createElement("span");
+                direction.classList.add("button");
+                direction.style = `background-position: -${25 * state.stick}px 0px;`;
+                entry.appendChild(direction);
+
+                for (let i = 0; i < getButtonCount(); i++) {
+                    let button = document.createElement("span");
+                    button.classList.add("button");
+                    if (state.btns[i]) button.style = `background-position: -${25 * i}px -25px;`;
+                    entry.appendChild(button);
+                }
+
+                return entry;
+            }
+
+            let lastState = [{}, {}];
+            let stateCount = [-1, -1];
+            let frameCount = [1, 1];
+
+            let inputs = {};
+            let activeGp = [null, null];
+
+            Array.prototype.equals = function (other) {
+                if (typeof other === "undefined") return false;
+                if (this.length !== other.length) return false;
+
+                var i = this.length;
+                while (i--) {
+                    if (this[i] !== other[i]) return false;
+                }
+                return true
+            };
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                activeGp.forEach((e, i) => {
+                    if (e !== null) {
+                        let state = inputs[e].doInputFrame();
+
+                        // Check for differences
+                        if (!state.btns.equals(lastState[i].btns) || state.stick !== lastState[i].stick) {
+                            lastState[i] = state;
+                            stateCount[i]++;
+
+                            // This'll signal a new input state
+                            frameCount[i] = 0;
+                        }
+
+                        //console.log(gamepads[p1gamepad].checkButton(0));
+                    }
+
+                    if (frameCount[i] === 0){
+                        document.getElementById(`input-display-p${i+1}`).prepend(createEntry(lastState[i], `state-${stateCount[i]}`));
+                    }
+
+                    if (frameCount[i] !== 9999) frameCount[i]++;
+                    $(`#input-display-p${i+1} #state-${stateCount[i]} .framecount`).text(`${frameCount[i]}`);
+                });
+            }
+
+            function gamepadHandler(event, connecting) {
+                let gamepad = event.gamepad;
+
+                if (connecting) {
+                    inputs[gamepad.index] = new GamepadDevice(gamepad);
+                    for (let i = 0; i < activeGp.length; i++) {
+                        if (activeGp[i] === null) {
+                            activeGp[i] = gamepad.index;
+                            break;
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < activeGp.length; i++) {
+                        if (activeGp[i] === gamepad.index) activeGp[i] = null;
+                    }
+                    delete inputs[gamepad.index];
+                }
+            }
+
+            function keyboardHandler(connecting) {
+                if (connecting) {
+                    inputs["keyboard"] = new KeyboardDevice();
+                    for (let i = 0; i < activeGp.length; i++) {
+                        if (activeGp[i] === null) {
+                            activeGp[i] = "keyboard";
+                            break;
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < activeGp.length; i++) {
+                        if (activeGp[i] === "keyboard") activeGp[i] = null;
+                    }
+                    delete inputs["keyboard"];
+                }
+            }
+
+            loadConfig().then(() => {
+                window.addEventListener("gamepadconnected", function(e) { gamepadHandler(e, true); }, false);
+                window.addEventListener("gamepaddisconnected", function(e) { gamepadHandler(e, false); }, false);
+
+                window.addEventListener("keydown", function(e) { keyboardHandler(true); }, false);
+
+                animate();
+            });
+        </script>
+
+        <style>
+            .input-display {
+                position: fixed;
+                top: calc(50% - 256px);
+
+                height: 512px;
+                width: 256px;
+
+                background: #0000007F;
+
+                overflow: hidden;
+            }
+
+            .input-display .input-entry {
+                height: 32px;
+                width: 100%;
+
+                display: flex;
+                align-items: center;
+                margin-left: 16px;
+
+                font-size: 24px;
+                color: white;
+            }
+
+            .input-display .input-entry .framecount {
+                width: 64px;
+                height: 24px;
+
+                font-style: italic;
+                text-align: right;
+
+                box-sizing: border-box;
+                padding-right: 4px;
+            }
+
+            .input-display .input-entry .button {
+                width: 25px;
+                height: 25px;
+
+                background: url('./assets/input_display.png')
+            }
+
+            .input-display .input-entry .button.inactive {
+                filter: grayscale(100%);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="input-display-p1" class="input-display" style="left:0;">
+
+        </div>
+        <div id="input-display-p2" class="input-display" style="right:0;">
+
+        </div>
+    </body>
+</html>
