@@ -13,10 +13,6 @@ export function loadConfig() {
     });
 }
 
-export function getButtonName(num) {
-    return String.fromCharCode(65 + num);
-}
-
 export function getButtonCount() {
     // Check if the config has loaded
     if (!config) {

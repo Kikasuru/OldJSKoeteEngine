@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Command Test</title>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+        <script type="module">
+            import {InputHandler, loadConfig} from "../js/input.js";
+            import {Command, CommandStage} from "../js/commands.js";
+
+            const commands = [
+                new Command([
+                    new CommandStage("A", false, 12)
+                ]),
+                new Command([
+                    new CommandStage("6", false, 12),
+                    new CommandStage("A", false, 12)
+                ]),
+                new Command([
+                    new CommandStage("2", true, 12),
+                    new CommandStage("6", false, 12),
+                    new CommandStage("A", false, 12)
+                ]),
+                new Command([
+                    new CommandStage("714", true, 12, 32),
+                    new CommandStage("963", false, 12),
+                    new CommandStage("A", false, 12)
+                ])
+            ];
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                let gp = InputHandler.gp[0];
+
+                if (gp !== null) {
+                    $("#player-text").text(`Current controler: ${gp.name}`);
+                    let state = gp.doInputFrame();
+
+                    commands.forEach((e, i) => {
+                        e.doFrame(state);
+
+                        $(`#${i}-command .command-timer`).toggleClass("active", e.active);
+                        $(`#${i}-command .command-timer .bar`).css("width", `${(e._buffer / 12) * 100}%`);
+                        $(`#${i}-command .command-timer .charge-bar`).css("width", `${(e._charge / 32) * 100}%`);
+                        $(`#${i}-command .command-info`)
+                            .html(`Stage: ${e._stage}<br>Charge: ${e._charge}<br>Buffer: ${e._buffer}`);
+                    });
+                } else {
+                    $("#player-text").text("No controller connected.");
+                }
+            }
+
+            $(document).ready(() => {
+                loadConfig().then(() => {
+                    InputHandler.enableHandlers();
+                    animate();
+                });
+            });
+        </script>
+
+        <style>
+            body {
+                font-size: 11px;
+                color: Gray;
+            }
+
+            .command-area {
+                display: flex;
+
+                height: 32px;
+
+                align-items: center;
+
+                margin-bottom: 8px;
+            }
+
+            .command-area .command-timer {
+                width: 128px;
+                height: 32px;
+
+                margin-right: 8px;
+
+                border: 4px solid black;
+
+                box-sizing: border-box;
+            }
+
+            .command-area .command-timer.active {
+                border: 4px solid MediumSeaGreen;
+            }
+
+            .command-area .command-timer .bar {
+                width: 0%;
+                height: 100%;
+
+                background: Orange;
+            }
+
+            .command-area .command-timer .charge-bar {
+                width: 0%;
+                height: 4px;
+
+                background: RoyalBlue;
+            }
+        </style>
+    </head>
+    <body>
+        5A
+        <div id="0-command" class="command-area">
+            <div class="command-timer">
+                <div class="bar"></div>
+            </div>
+            <span class="command-info">Stage: 0<br>Charge: 1<br>Buffer: -1</span>
+        </div>
+        6A
+        <div id="1-command" class="command-area">
+            <div class="command-timer">
+                <div class="bar"></div>
+            </div>
+            <span class="command-info">Stage: 0<br>Charge: 1<br>Buffer: -1</span>
+        </div>
+        236A
+        <div id="2-command" class="command-area">
+            <div class="command-timer">
+                <div class="bar"></div>
+            </div>
+            <span class="command-info">Stage: 0<br>Charge: 1<br>Buffer: -1</span>
+        </div>
+        [4]6A
+        <div id="3-command" class="command-area">
+            <div class="command-timer">
+                <div class="bar"></div>
+                <div class="charge-bar"></div>
+            </div>
+            <span class="command-info">Stage: 0<br>Charge: 1<br>Buffer: -1</span>
+        </div>
+        <div id="player-text">Current Controller: </div>
+    </body>
+</html>
