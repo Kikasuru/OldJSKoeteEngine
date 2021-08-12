@@ -26,7 +26,7 @@ export class Command {
     }
 
     get active() {
-        return this.stages.length <= this._stage;
+        return this.stages.length <= this._stage && this._buffer > 0;
     }
 
     doFrame(input) {
@@ -53,6 +53,16 @@ export class Command {
             if (btnAct) break;
         }
 
+        // If the buffer has depleted, destroy the chain
+        if (this._buffer <= 0) {
+            if (curr.charge <= 1) this._charge = 0;
+            if (!btnAct) {
+                this._buffer = -1
+                this._stage = 0;
+                this._buffStg = 0;
+            }
+        }
+
         // Advance charge
         if (btnAct && this._charge < curr.charge) this._charge++;
 
@@ -73,14 +83,5 @@ export class Command {
 
         // If no button is being pressed, reset the charge
         if (!btnAct) this._charge = 0;
-
-        // If the buffer has depleted, destroy the chain
-        if (this._buffer <= 0) {
-            this._stage = 0;
-            this._buffStg = 0;
-
-            // Set the buffer to inactive if no buttons are pressed
-            if (!btnAct) this._buffer = -1;
-        }
     }
 }
