@@ -3,8 +3,8 @@
 
     "defaultKeyboard": {
         "up": "KeyW",
-        "down": "KeyA",
-        "left": "KeyS",
+        "down": "KeyS",
+        "left": "KeyA",
         "right": "KeyD",
 
         "btns": ["KeyU", "KeyI", "KeyO", "KeyJ"]
