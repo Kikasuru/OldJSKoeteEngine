@@ -18,7 +18,6 @@ export class CommandStage {
 export class Command {
     _stage = 0;
     _charge = 0;
-    _buffStg = 0;
     _buffer = -1;
 
     constructor(stages) {
@@ -67,7 +66,7 @@ export class Command {
         if (btnAct && this._charge < curr.charge) this._charge++;
 
         // If the button is held and the buffer is -1 or if the input can be held
-        if ((this._charge >= curr.charge) && ((this._buffer === -1 || this._stage !== this._buffStg) || curr.canHold)) {
+        if ((this._charge >= curr.charge) && ((this._buffer === -1 || this._stage < this.stages.length) || curr.canHold)) {
             // Set the buffer to max
             this._buffer = curr.maxBuf;
 
@@ -76,7 +75,6 @@ export class Command {
                 this._charge = 0;
 
                 // Advance the stage
-                this._buffStg = this._stage;
                 if (this._stage < this.stages.length) this._stage++;
             }
         }
