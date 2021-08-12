@@ -7,7 +7,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
         <script type="module">
-            import {GamepadDevice, KeyboardDevice, loadConfig, getButtonCount} from "../js/input.js";
+            import {InputHandler, loadConfig, getButtonCount} from "../js/input.js";
 
             function createEntry(state, id) {
                 let entry = document.createElement("div");
@@ -38,9 +38,6 @@
             let stateCount = [-1, -1];
             let frameCount = [1, 1];
 
-            let inputs = {};
-            let activeGp = [null, null];
-
             Array.prototype.equals = function (other) {
                 if (typeof other === "undefined") return false;
                 if (this.length !== other.length) return false;
@@ -55,9 +52,11 @@
             function animate() {
                 requestAnimationFrame(animate);
 
-                activeGp.forEach((e, i) => {
-                    if (e !== null) {
-                        let state = inputs[e].doInputFrame();
+                for (let i = 0; i < 2; i++) {
+                    let gp = InputHandler.gp[i];
+
+                    if (gp !== null) {
+                        let state = gp.doInputFrame();
 
                         // Check for differences
                         if (!state.btns.equals(lastState[i].btns) || state.stick !== lastState[i].stick) {
@@ -67,8 +66,6 @@
                             // This'll signal a new input state
                             frameCount[i] = 0;
                         }
-
-                        //console.log(gamepads[p1gamepad].checkButton(0));
                     }
 
                     if (frameCount[i] === 0){
@@ -77,52 +74,11 @@
 
                     if (frameCount[i] !== 9999) frameCount[i]++;
                     $(`#input-display-p${i+1} #state-${stateCount[i]} .framecount`).text(`${frameCount[i]}`);
-                });
-            }
-
-            function gamepadHandler(event, connecting) {
-                let gamepad = event.gamepad;
-
-                if (connecting) {
-                    inputs[gamepad.index] = new GamepadDevice(gamepad);
-                    for (let i = 0; i < activeGp.length; i++) {
-                        if (activeGp[i] === null) {
-                            activeGp[i] = gamepad.index;
-                            break;
-                        }
-                    }
-                } else {
-                    for (let i = 0; i < activeGp.length; i++) {
-                        if (activeGp[i] === gamepad.index) activeGp[i] = null;
-                    }
-                    delete inputs[gamepad.index];
-                }
-            }
-
-            function keyboardHandler(connecting) {
-                if (connecting) {
-                    inputs["keyboard"] = new KeyboardDevice();
-                    if (activeGp.includes("keyboard")) return;
-
-                    for (let i = 0; i < activeGp.length; i++) {
-                        if (activeGp[i] === null) {
-                            activeGp[i] = "keyboard";
-                            break;
-                        }
-                    }
-                } else {
-                    for (let i = 0; i < activeGp.length; i++) {
-                        if (activeGp[i] === "keyboard") activeGp[i] = null;
-                    }
-                    delete inputs["keyboard"];
                 }
             }
 
             loadConfig().then(() => {
-                window.addEventListener("gamepadconnected", function(e) { gamepadHandler(e, true); }, false);
-                window.addEventListener("gamepaddisconnected", function(e) { gamepadHandler(e, false); }, false);
-
-                window.addEventListener("keydown", function(e) { keyboardHandler(true); }, false);
+                InputHandler.enableHandlers();
                 animate();
             });
         </script>

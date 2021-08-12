@@ -148,3 +148,60 @@ export class GamepadDevice extends InputDevice {
         }
     }
 }
+
+export class InputHandler {
+    static inputs = {}
+    static activeGp = [null, null]
+
+    static get gp() {
+        return [
+            this.activeGp[0] !== null ? this.inputs[this.activeGp[0]] : null,
+            this.activeGp[1] !== null ? this.inputs[this.activeGp[1]] : null
+        ];
+    }
+
+    static gamepadHandler(event, connecting) {
+        let gamepad = event.gamepad;
+
+        if (connecting) {
+            this.inputs[gamepad.index] = new GamepadDevice(gamepad);
+            for (let i = 0; i < this.activeGp.length; i++) {
+                if (this.activeGp[i] === null) {
+                    this.activeGp[i] = gamepad.index;
+                    break;
+                }
+            }
+        } else {
+            for (let i = 0; i < this.activeGp.length; i++) {
+                if (this.activeGp[i] === gamepad.index) this.activeGp[i] = null;
+            }
+            delete this.inputs[gamepad.index];
+        }
+    }
+
+    static keyboardHandler(connecting) {
+        if (connecting) {
+            this.inputs["keyboard"] = new KeyboardDevice();
+            if (this.activeGp.includes("keyboard")) return;
+
+            for (let i = 0; i < this.activeGp.length; i++) {
+                if (this.activeGp[i] === null) {
+                    this.activeGp[i] = "keyboard";
+                    break;
+                }
+            }
+        } else {
+            for (let i = 0; i < this.activeGp.length; i++) {
+                if (this.activeGp[i] === "keyboard") this.activeGp[i] = null;
+            }
+            delete this.inputs["keyboard"];
+        }
+    }
+
+    static enableHandlers() {
+        window.addEventListener("gamepadconnected", function(e) { InputHandler.gamepadHandler(e, true); }, false);
+        window.addEventListener("gamepaddisconnected", function(e) { InputHandler.gamepadHandler(e, false); }, false);
+
+        window.addEventListener("keydown", function(e) { InputHandler.keyboardHandler(true); }, false);
+    }
+}
