@@ -58,7 +58,6 @@ export class Command {
             if (!btnAct) {
                 this._buffer = -1
                 this._stage = 0;
-                this._buffStg = 0;
             }
         }
 
