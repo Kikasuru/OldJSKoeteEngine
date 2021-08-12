@@ -77,10 +77,13 @@
                 }
             }
 
-            loadConfig().then(() => {
-                InputHandler.enableHandlers();
-                animate();
+            $(document).ready(() => {
+                loadConfig().then(() => {
+                    InputHandler.enableHandlers();
+                    animate();
+                });
             });
+
         </script>
 
         <style>
