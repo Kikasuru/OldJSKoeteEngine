@@ -2,13 +2,14 @@
     "btnNum": 4,
 
     "defaultKeyboard": {
-        "up": "Space",
-        "down": "KeyW",
-        "left": "KeyQ",
-        "right": "KeyE",
+        "up": "KeyW",
+        "down": "KeyA",
+        "left": "KeyS",
+        "right": "KeyD",
 
-        "btns": ["Numpad4", "Numpad5", "Numpad6", "Numpad1"]
+        "btns": ["KeyU", "KeyI", "KeyO", "KeyJ"]
     },
+
     "defaultGamepad": {
         "xaxis": 0,
         "yaxis": 1,
