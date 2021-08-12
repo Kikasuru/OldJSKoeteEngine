@@ -111,7 +111,7 @@ export class GamepadDevice extends InputDevice {
         this.gamepad = gamepad.index;
     }
 
-    checkButton(btn) {
+    #checkButton(btn) {
         if (typeof(btn) == "object") {
             return btn.value >= this.config.sensitivity || btn.pressed;
         }
@@ -134,16 +134,16 @@ export class GamepadDevice extends InputDevice {
                 gamepad.axis[this.config.xaxis] >= this.config.sensitivity,
                 gamepad.axis[this.config.xaxis] <= this.config.sensitivity * -1,
 
-                Array.from({length: config.btnNum}, (e, i) => e = this.checkButton(gp.buttons[this.config.btns[i]]))
+                Array.from({length: config.btnNum}, (e, i) => e = this.#checkButton(gp.buttons[this.config.btns[i]]))
             )
         } else {
             return new InputState(
-                this.checkButton(gp.buttons[this.config.up]),
-                this.checkButton(gp.buttons[this.config.down]),
-                this.checkButton(gp.buttons[this.config.left]),
-                this.checkButton(gp.buttons[this.config.right]),
+                this.#checkButton(gp.buttons[this.config.up]),
+                this.#checkButton(gp.buttons[this.config.down]),
+                this.#checkButton(gp.buttons[this.config.left]),
+                this.#checkButton(gp.buttons[this.config.right]),
 
-                Array.from({length: config.btnNum}, (e, i) => e = this.checkButton(gp.buttons[this.config.btns[i]]))
+                Array.from({length: config.btnNum}, (e, i) => e = this.#checkButton(gp.buttons[this.config.btns[i]]))
             )
         }
     }
