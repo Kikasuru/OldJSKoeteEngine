@@ -111,7 +111,7 @@ export class GamepadDevice extends InputDevice {
         if (typeof(btn) == "object") {
             return btn.value >= this.config.sensitivity || btn.pressed;
         }
-        return b >= this.config.sensitivity;
+        return btn >= this.config.sensitivity;
     }
 
     doInputFrame() {
